@@ -1,4 +1,4 @@
-{
+ {
   "extends": "@vue/tsconfig/tsconfig.node.json",
   "include": [
     "vite.config.*",
@@ -10,4 +10,4 @@
     "composite": true,
     "types": ["node"]
   }
-}
+ }
