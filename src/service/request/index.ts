@@ -16,7 +16,6 @@ import type { HYRequestConfig } from './type'
 
 class HYRequest {
   instance: AxiosInstance
-
   // request实例 => axios的实例
   constructor(config: HYRequestConfig) {
     this.instance = axios.create(config)

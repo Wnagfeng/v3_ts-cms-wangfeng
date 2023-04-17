@@ -18,7 +18,7 @@
                 <span class="text">用户登录</span>
               </div>
             </template>
-            <UserLogin></UserLogin>
+            <UserLogin ref="UserLoginRef"></UserLogin>
           </el-tab-pane>
           <el-tab-pane label="手机登录" name="PhoneLogin">
             <template #label>
@@ -44,13 +44,35 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import UserLogin from '@/Views/Login/C-pns/User-Login.vue'
 import PhoneLogin from '@/Views/Login/C-pns/Phone-Login.vue'
-let isRememberPassword = ref(true)
+import { localCache } from '@/Utils/Cache'
+
+const UserLoginRef = ref()
 let activeName = ref('UserLogin')
+
+let isRememberPassword = ref<boolean>(
+  localCache.getCache('isRememberPassword') ?? false
+)
+watch(isRememberPassword, (newValue) => {
+  changeLocateStore(newValue)
+})
+
+// 改变本地存储的数据
+function changeLocateStore(newValue: boolean) {
+  localCache.removeCache('isRememberPassword')
+  localCache.setCache('isRememberPassword', newValue)
+}
+// 判断用户在使用什么方式进行登录
 function handlTabsClick() {
-  console.log(activeName.value)
+  if (activeName.value === 'UserLogin') {
+    // 在这里我们需要获取在UserLogin中的UserCoutn中的name和password
+    // 1拿到组件去发送网络请求获取token
+    UserLoginRef?.value?.LoginAction(isRememberPassword.value)
+  } else {
+    console.log('用户在用手机号进行登录')
+  }
 }
 </script>
 <style scoped lang="less">
