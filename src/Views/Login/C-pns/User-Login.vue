@@ -55,23 +55,28 @@ const rules: FormRules = {
 function LoginAction(isRememberPassword: boolean) {
   UserLogin.value?.validate((valid, fields) => {
     if (valid) {
-      ElMessage({
-        message: '登录成功',
-        type: 'success'
-      })
       const name = UserCoutn.name
       const password = UserCoutn.password
       // 拿到账号信息发送网络请求
-      login.loginAccountAction({ name, password }).then((res) => {
-        // 当登录成功以后我们进行记住密码
-        if (isRememberPassword) {
-          localCache.setCache(CACHE_NAME, name)
-          localCache.setCache(CACHE_PASSWORD, password)
-        } else {
-          localCache.removeCache(CACHE_NAME)
-          localCache.removeCache(CACHE_PASSWORD)
-        }
-      })
+      login
+        .loginAccountAction({ name, password })
+        .then((res: any) => {
+          ElMessage({
+            message: '登录成功',
+            type: 'success'
+          })
+          // 当登录成功以后我们进行记住密码
+          if (isRememberPassword) {
+            localCache.setCache(CACHE_NAME, name)
+            localCache.setCache(CACHE_PASSWORD, password)
+          } else {
+            localCache.removeCache(CACHE_NAME)
+            localCache.removeCache(CACHE_PASSWORD)
+          }
+        })
+        .catch((err) => {
+          ElMessage.error('账号或者密码不对')
+        })
       // 如果记住密码为true我们就放到storage中
     } else {
       ElMessage.error('账号或者密码不对')

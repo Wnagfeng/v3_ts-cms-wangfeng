@@ -20,8 +20,8 @@ const useLoginStore = defineStore('login', {
   state: (): Istate => {
     return {
       token: localStorage.getItem(LOGIN_TOKEN) ?? '',
-      userinfo: {},
-      usermenu: []
+      userinfo: localCache.getCache('userinfo') ?? {},
+      usermenu: localCache.getCache('menu') ?? []
     }
   },
   actions: {
@@ -31,15 +31,21 @@ const useLoginStore = defineStore('login', {
       const res = await accountLogin(account)
       const id = res.data.id
       this.token = res.data.token
-      const name = res.data.name
-      // 2进行本地存储
       localCache.setCache(LOGIN_TOKEN, res.data.token)
+
       // 3根据token和用户id去获取用户信息
       const userinfo = await getUserInfo(id)
-      this.userinfo = userinfo.data
+      const userinfoRes = userinfo.data
+      this.userinfo = userinfoRes
+
       // 4根据角色请求用户权限菜单树
       const menu = await getUserMenuTree(this.userinfo.role.id)
-      this.usermenu = menu.data
+      const menuRes = menu.data
+      this.usermenu = menuRes
+
+      localCache.setCache('menu', menu.data)
+      localCache.setCache('userinfo', userinfo)
+
 
       router.push('/main')
     }
