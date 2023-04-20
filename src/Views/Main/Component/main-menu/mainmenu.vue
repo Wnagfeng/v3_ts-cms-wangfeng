@@ -6,7 +6,7 @@
     </div>
     <el-menu
       :collapse="!isFold"
-      default-active="2"
+      :default-active="id + ''"
       text-color="#b7bdc3"
       active-text-color="#fff"
       background-color="#001529"
@@ -22,7 +22,11 @@
             <span>{{ item.name }}</span>
           </template>
           <template v-for="iten in item.children" :key="iten.id + ''">
-            <el-menu-item :index="iten.id + ''" class="el-menu-item">
+            <el-menu-item
+              :index="iten.id + ''"
+              class="el-menu-item"
+              @click="topathClick(iten)"
+            >
               <span>{{ iten.name }}</span>
             </el-menu-item>
           </template>
@@ -33,16 +37,25 @@
 </template>
 <script setup lang="ts">
 import useLoginStore from '@/Stores/Module/login/login'
-
+import router from '@/router'
+import { useRoute } from 'vue-router'
+import { mapPathtoUsermenus } from '@/Utils/map-menus'
 import { defineProps } from 'vue'
 const props = defineProps({
   isFold: {
     type: Boolean,
-    default:false
+    default: false
   }
 })
 const loginStore = useLoginStore()
 const usermenu = loginStore.usermenu
+
+function topathClick(item: any) {
+  router.push(item.url)
+}
+const routers = useRoute()
+// 根据当前的路由地址去全部的路由中匹配一下
+const id = mapPathtoUsermenus(routers.path, usermenu)
 </script>
 <style scoped lang="less">
 .el-menu {

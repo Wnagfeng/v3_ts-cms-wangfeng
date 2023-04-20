@@ -7,8 +7,9 @@ import {
 import type { IAccount } from '@/Types/Login'
 import { localCache } from '@/Utils/Cache.js'
 import { LOGIN_TOKEN } from '@/global/constants'
+import { mapMenusToRouters } from '@/Utils/map-menus'
+import router from '@/router'
 
-import router from '@/Router'
 // 确定state类型
 interface Istate {
   token: string
@@ -46,8 +47,20 @@ const useLoginStore = defineStore('login', {
       localCache.setCache('menu', menu.data)
       localCache.setCache('userinfo', userinfo)
 
+      // 动态添加路由---看redme.md有详解
+      const rouers = mapMenusToRouters(menuRes)
+      rouers.forEach((item) => {
+        router.addRoute('main', item)
+      })
 
       router.push('/main')
+    },
+    // 只要用户给我刷新我就给他重新加载一下所有的路由
+    loadRouters() {
+      const rouers = mapMenusToRouters(this.usermenu)
+      rouers.forEach((item) => {
+        router.addRoute('main', item)
+      })
     }
   }
 })

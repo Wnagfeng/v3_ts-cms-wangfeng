@@ -168,3 +168,159 @@ localCache.setCache('userinfo', userinfo)
 
 动态路由:根据用户的权限动态的注册路由和映射关系&#x1F494;
 
+方案一:基于角色(Role)动态路由管理:santa:
+
+在前端中定义一个枚举类型也可以是对象类型 保存不同角色的不同权限
+
+```js
+const roles:{
+ "Root":["所有路由"] =>router.main.children
+ "Admin":["一部分路由"] =>router.main.children
+ "Service":["部分路由"] =>router.main.children
+}
+```
+
+弊端:每增加一个角色都要添加一个key和value 
+
+前端添加:如果已经发布了前端就不好加(必须要重新发布代码)
+
+后端添加:这里的枚举类型 让后端给我们返回 json 根据这个json来动态添加到roles 同时后端必须要组织好json给我们前端返回
+
+
+
+方案二:基于菜单的动态路由管理:joy:
+
+我们在请求数据的时候我们曾经请求过一个menus 该menus是根据不同的用户角色来生成的不同的菜单
+
+这洽洽符合我们的要求  我们只需要把这些菜单给动态映射出来刚好就是我们的路由了
+
+#### 第一步
+
+对于动态路由的文件架构思想以及自动化生成文件结构
+
+对于路由 最好是view中的页面与router中的页面成一一对应关系
+
+这里我们使用coderwhy的自动生成文件夹结构 
+
+第一步安装  npm install coderwhy -g
+
+理一下思路我们的view和router是一一对应的我们使用该工具只需要在main页面中生成view他就会自动在router文件夹下生成 对应的路由文件 比如生成一下结构
+
+coderwhy add3page_setup list -d src/views/main/story/list
+
+main下的文件内容
+
+```js
+<template>
+  <div class="list">
+    <h2>list</h2>
+  </div>
+</template>
+
+<script setup lang="ts" name="list"></script>
+
+<style scoped>
+.list {
+}
+</style>
+
+```
+
+router下的问价内容
+
+```js
+const list = () => import('@/views/main/story/list/list.vue')
+export default {
+  path: '/main/story/list',
+  name: 'list',
+  component: list,
+  children: []
+}
+```
+
+可以看到我们的router下的文件中会自动给我们引入了main下的页面
+
+且生成了path 这个path刚好是我们的路由
+
+#### 第二步
+
+我们想要实现动态路由就需要在用户登录的一瞬间拿到该用户所有的权限 根据他的权限去动态添加路由
+
+前面我们已经通过token拿到了用户的menus列表在menus中有许多的路由 这些路由刚好是该用户应该拥有的
+
+我们需要取出来
+
+##### 2.1获取所有的路由我们通过自动化生成了所有的页面我们需要全部拿到放到数组中
+
+这里我们使用vite中的 import.meta.glob 
+
+定义路径模式之后，可以调用 `import.meta.glob` 方法来导入匹配到的模块。该方法返回一个对象，其中每个键都是匹配到的模块路径，每个值都是一个异步加载函数，用于动态导入对应的模块。
+
+```js
+// 动态添加路由
+      // 我们已经生成页面中所有的文件结构和路由结构，接下来我们需要拿到所有的路由从router下的文件中拿
+      // 匹配某个文件夹及其子文件夹下的所有 .vue 文件：./path/**/*.vue
+
+      // 第一步定义一个用于保存所有路由的数组
+      const localRouters: RouteRecordRaw[] = []
+      const files: Record<string, any> = import.meta.glob(
+        '../../../router/main/**/*.ts',
+        {
+          /*
+       在某些情况下，可能需要在应用加载时就预先加载所有匹配到的模块，以便加快应用的启动速度。为了实现这个目的，可以在路径模式后面加上 {eager: true}，来表示对所有匹配到的模块进行“急切导入（eager import）”。
+        */
+          eager: true
+        }
+      )
+      // 第二步把main页面中的所有路由添加到localRouters中进行存储
+      for (const key in files) {
+        const module = files[key]
+        // 把该路由对象放到数组中
+        localRouters.push(module.default)
+        // 现在在localRouters数组中存储了main页面中的所有路由
+      }
+      //第三步根据usermenus去匹配需要的路由进行添加到路由中
+      for (const menu of menuRes) {
+        // 拿到他的全部路由
+        for (const submenu of menu.children) {
+          const route = localRouters.find((item) => item.path === submenu.url)
+          if (route) router.addRoute('main', route)
+        }
+      }
+```
+
+### 修复bug
+
+当用户从登录页面进入以后是可以匹配路由的
+
+当用户在main页面 中刷新一下以后就不行了 我们需要对齐进行修复一下
+
+在vue中只要你进行刷新就会进行使用pinia 我们刚好可以在main中搞一下
+
+解决方案我们在loginStore中的action中在定义一个函数用于重新加载routers去重新匹配路由
+
+```js
+ // 只要用户给我刷新我就给他重新加载一下所有的路由
+    loadRouters() {
+      const rouers = mapMenusToRouters(this.usermenu)
+      rouers.forEach((item) => {
+        router.addRoute('main', item)
+      })
+    }
+```
+
+在main中的使用pinia之后在使用router之前我们进行调用该函数进行调用重新匹配路由
+
+因为我们需要先进行用户权限的路由匹配和添加之后在使用路由所以我们最好在使用路由之前进行调用该函数
+
+### 项目细节
+
+建议在用户登录成功以后把main页面跳转到用户menus中的第一个url
+
+```js
+if (fristRouterUrl === null && route) {
+        fristRouterUrl = submenu
+      }
+```
+
+直接把这个东西暴露出去再次在路由守卫中拦截一下就行

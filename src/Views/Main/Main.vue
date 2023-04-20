@@ -2,21 +2,24 @@
   <div class="MainWrapper">
     <el-container class="container">
       <el-aside class="aside" :width="flage ? '60px' : '200px'">
-        <manmenu :isFold="!flage"></manmenu>
+        <mainmenu :isFold="!flage"> </mainmenu>
       </el-aside>
       <el-container>
         <el-header class="header">
           <mainheader @changeFold="handleFold"></mainheader>
         </el-header>
-        <el-main class="main">Main</el-main>
+        <el-main class="main">
+          <RouterView></RouterView>
+        </el-main>
       </el-container>
     </el-container>
   </div>
 </template>
 <script setup lang="ts">
-import manmenu from './Component/main-menu/mainmenu.vue'
-import mainheader from './Component/main-header/mainheader.vue'
+import mainmenu from '@/views/main/Component/main-menu/mainmenu.vue'
+import mainheader from '@/views/main/Component/main-header/mainheader.vue'
 import { ref } from 'vue'
+import { RouterView } from 'vue-router'
 const flage = ref(false)
 function handleFold(flageFlod: boolean) {
   flage.value = flageFlod

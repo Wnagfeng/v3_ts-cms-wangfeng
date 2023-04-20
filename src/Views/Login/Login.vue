@@ -45,8 +45,8 @@
 </template>
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import UserLogin from '@/Views/Login/C-pns/User-Login.vue'
-import PhoneLogin from '@/Views/Login/C-pns/Phone-Login.vue'
+import UserLogin from '@/views/Login/C-pns/User-Login.vue'
+import PhoneLogin from '@/views/Login/C-pns/Phone-Login.vue'
 import { localCache } from '@/Utils/Cache'
 
 const UserLoginRef = ref()

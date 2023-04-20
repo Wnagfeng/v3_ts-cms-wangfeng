@@ -4,15 +4,17 @@
     <!--面包屑 -->
     <div class="left">
       <div class="buton" @click="Btnclick">
-        <el-icon :size="30" v-if="isFold" >
+        <el-icon :size="30" v-if="isFold">
           <Expand />
         </el-icon>
-        <el-icon :size="30" v-else >
+        <el-icon :size="30" v-else>
           <Fold />
         </el-icon>
       </div>
 
-      <div class="Breadcrumb">这里是面包屑</div>
+      <div class="Breadcrumb">
+        <breadcrumb></breadcrumb>
+      </div>
     </div>
 
     <!-- 用户信息 -->
@@ -70,8 +72,10 @@
 import { localCache } from '@/Utils/Cache'
 import { LOGIN_TOKEN } from '@/global/constants'
 import { ref } from 'vue'
-import router from '@/Router'
+import router from '@/router'
 import { ElMessage } from 'element-plus'
+import breadcrumb from './breadcrumb.vue'
+
 // 暴露一个自定义事件
 const emits = defineEmits(['changeFold'])
 const isFold = ref(false) //默认不是关闭
@@ -110,11 +114,12 @@ function extLogin() {
 
   .userinfo {
     display: flex;
+
     align-items: center;
 
     .icon {
       margin-left: 20px;
-      &:hover{
+      &:hover {
         color: skyblue;
       }
 
