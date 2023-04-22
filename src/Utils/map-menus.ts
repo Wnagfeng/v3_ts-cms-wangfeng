@@ -23,6 +23,11 @@ export function mapMenusToRouters(usermenu: any) {
     for (const submenu of menu.children) {
       const route = localRouters.find((item) => item.path === submenu.url)
       if (route) {
+        // 我们这里的重定向匹配只需要添加一次就行 只需要判断一下当前的一级路由是否已经添加过了如果添加过了 就不用在添加了
+        if (!rouers.find((item) => item.path === menu.url)) {
+          rouers.push({ path: menu.url, redirect: route.path })
+        }
+        
         rouers.push(route)
       }
       if (fristRouterUrl === null && route) {
@@ -42,4 +47,24 @@ export function mapPathtoUsermenus(path: any, usermenu: any) {
       }
     }
   }
+}
+
+interface IBreadcrumb {
+  name: any
+  path: any
+}
+// 封装一个函数用户匹配面包屑
+// 需求根据当前路由去匹配父级路由的name同时也要展示当前路由的name
+export function mapPathToBreadcrumbName(path: any, usermenu: any) {
+  // 用户传递过来当个路由和全部路由
+  const Breadcrumb: IBreadcrumb[] = []
+  for (const menu of usermenu) {
+    for (const submenu of menu.children) {
+      if (submenu.url === path) {
+        Breadcrumb.push({ name: menu.name, path: menu.url })
+        Breadcrumb.push({ name: submenu.name, path: submenu.url })
+      }
+    }
+  }
+  return Breadcrumb
 }

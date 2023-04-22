@@ -41,6 +41,7 @@ import router from '@/router'
 import { useRoute } from 'vue-router'
 import { mapPathtoUsermenus } from '@/Utils/map-menus'
 import { defineProps } from 'vue'
+import { computed } from '@vue/reactivity'
 const props = defineProps({
   isFold: {
     type: Boolean,
@@ -55,7 +56,9 @@ function topathClick(item: any) {
 }
 const routers = useRoute()
 // 根据当前的路由地址去全部的路由中匹配一下
-const id = mapPathtoUsermenus(routers.path, usermenu)
+const id = computed(() => {
+  return mapPathtoUsermenus(routers.path, usermenu)
+})
 </script>
 <style scoped lang="less">
 .el-menu {

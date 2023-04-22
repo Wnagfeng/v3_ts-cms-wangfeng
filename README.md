@@ -320,7 +320,72 @@ export default {
 ```js
 if (fristRouterUrl === null && route) {
         fristRouterUrl = submenu
-      }
+  }
 ```
 
 直接把这个东西暴露出去再次在路由守卫中拦截一下就行
+
+### 根据url去匹配menu的位置
+
+```js
+export function mapPathtoUsermenus(path: any, usermenu: any) {
+  for (const menu of usermenu) {
+    for (const submenu of menu.children) {
+      if (submenu.url === path) {
+        return submenu.id
+      }
+    }
+  }
+}
+```
+
+只需要匹配到usermenu中的位置即可拿到我们需要的id
+
+### 今天需要对面包屑进行封装
+
+面包屑需求:
+
+第一个菜单显示当前路由的父路由name 
+
+后面的菜单以此类推,要求点击第一个面包屑跳转到当前的路由组中的第一个路由(由于我们没有对父路由进行匹配页面)
+
+我们需要封装一些redirect去跳转路由
+
+在编写完主要逻辑之后，需要注意 在页面调用该函数的时候他不是响应式的数据所以在用户点击其他的menu的时候不能直接响应改变页面
+
+我们需要使用vue中的computed进行数据监听
+
+主要的逻辑
+
+```js
+export function mapPathToBreadcrumbName(path: any, usermenu: any) {
+  // 用户传递过来当个路由和全部路由
+  const Breadcrumb: IBreadcrumb[] = []
+  for (const menu of usermenu) {
+    for (const submenu of menu.children) {
+      if (submenu.url === path) {
+        Breadcrumb.push({ name: menu.name, path: menu.url })
+        Breadcrumb.push({ name: submenu.name, path: submenu.url })
+      }
+    }
+  }
+  return Breadcrumb
+}
+```
+
+页面逻辑
+
+```js
+const Breadcrumb = computed(() => {
+  return mapPathToBreadcrumbName(route.path, usermenu)
+})
+```
+
+第一:所有你匹配到的路由不能直接返回要存数组，因为后期要遍历该数据
+
+第二:在使用computed进行监听的时候是监听该函数不是监听其他数据 函数的改变主要是参数的变化
+
+route.path就是变量所以在每次发生改变后都要获取当前路由而不是你直接获取传递过来是在调用函数时获取该数据
+
+### 
+
