@@ -6,6 +6,7 @@ import pinia from './Stores'
 import '@/assets/Css/index.less'
 import { RegisterIcons } from '@/global/register-icons'
 import useLoginStore from './Stores/Module/login/login'
+import 'default-passive-events'
 const app = createApp(App)
 
 app.use(pinia)

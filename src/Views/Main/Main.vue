@@ -44,7 +44,7 @@ function handleFold(flageFlod: boolean) {
   }
 
   .main {
-    background-color: skyblue;
+    background-color: #f0f2f5;
   }
 }
 </style>
