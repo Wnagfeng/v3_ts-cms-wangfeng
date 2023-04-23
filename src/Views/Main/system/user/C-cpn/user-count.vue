@@ -135,13 +135,15 @@ function fetchUserlistData(fromdata: any = {}) {
     ...fromdata
   }
   // 定义一个请求的状态 用户发聩给用户
-  store.getsystemUserlistData(info)
+  const res = store.getsystemUserlistData(info)
+  return res
 }
 
 // 删除用户的逻辑
 function deleteClick(id: any) {
-  store.StoredelteUser(id)
-  fetchUserlistData()
+  store.StoredelteUser(id).then((res) => {
+    fetchUserlistData()
+  })
 }
 
 function handleuserClick() {

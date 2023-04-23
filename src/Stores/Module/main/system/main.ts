@@ -16,9 +16,8 @@ export const systemStoreMain = defineStore('systemStore', {
     async fetchAlldepartmentDataandRoleData() {
       const departmentlist = await getdepartmentlist()
       const rolelist = await getrolelist()
-
-      console.log(departmentlist)
-      console.log(rolelist)
+      this.entireRoles = rolelist.data
+      this.entireDepartments = departmentlist.data
     }
   }
 })

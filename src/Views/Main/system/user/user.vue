@@ -17,7 +17,17 @@ const userdialog = ref()
 const userCountRef = ref()
 
 function handlSearchClick(frominfo: any) {
-  userCountRef.value?.fetchUserlistData(frominfo)
+  userCountRef.value
+    ?.fetchUserlistData(frominfo)
+    .then((res: any) => {
+      ElMessage({
+        message: '查询成功',
+        type: 'success'
+      })
+    })
+    .catch((rej: any) => {
+      ElMessage.error('查询失败')
+    })
 }
 function createUserClick() {
   userdialog.value.changecenterDialogVisible()

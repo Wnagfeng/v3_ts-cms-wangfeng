@@ -66,12 +66,7 @@
 <script setup lang="ts">
 import { Search, RefreshRight } from '@element-plus/icons-vue'
 import type { ElForm } from 'element-plus'
-import { computed, reactive, ref, watch } from 'vue'
-import { systemstore } from '@/Stores/Module/main/system/index'
-import { storeToRefs } from 'pinia'
-const userstore = systemstore()
-const { totalCount } = storeToRefs(userstore)
-
+import { reactive, ref } from 'vue'
 const emit = defineEmits(['SearchCLick', 'ResetClick'])
 const form = ref<InstanceType<typeof ElForm>>()
 const formInfo = reactive({
