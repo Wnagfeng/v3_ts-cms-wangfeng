@@ -8,6 +8,8 @@ import type { IAccount } from '@/Types/Login'
 import { localCache } from '@/Utils/Cache.js'
 import { LOGIN_TOKEN } from '@/global/constants'
 import { mapMenusToRouters } from '@/Utils/map-menus'
+import { systemStoreMain } from '../main/system/main'
+
 import router from '@/router'
 
 // 确定state类型
@@ -47,6 +49,10 @@ const useLoginStore = defineStore('login', {
       localCache.setCache('menu', menu.data)
       localCache.setCache('userinfo', userinfo)
 
+      // 请求用户角色列表和菜单列表
+      const systemMainstore = systemStoreMain()
+      systemMainstore.fetchAlldepartmentDataandRoleData()
+
       // 动态添加路由---看redme.md有详解
       const rouers = mapMenusToRouters(menuRes)
       rouers.forEach((item) => {
@@ -58,6 +64,10 @@ const useLoginStore = defineStore('login', {
     // 只要用户给我刷新我就给他重新加载一下所有的路由
     loadRouters() {
       const rouers = mapMenusToRouters(this.usermenu)
+
+      // 用户刷新在获取一次角色列表
+      const systemMainstore = systemStoreMain()
+      systemMainstore.fetchAlldepartmentDataandRoleData()
       rouers.forEach((item) => {
         router.addRoute('main', item)
       })

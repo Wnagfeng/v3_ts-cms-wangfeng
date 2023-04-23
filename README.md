@@ -387,5 +387,41 @@ const Breadcrumb = computed(() => {
 
 route.path就是变量所以在每次发生改变后都要获取当前路由而不是你直接获取传递过来是在调用函数时获取该数据
 
-### 
+### 点击不同页码展示不同的数据
 
+```js
+function fetchUserlistData() {
+  // size你每次请求需要拿多少数
+  const size = pageSize.value //根据当前页面需要展示多少数据去请求数据
+  const offset = (currentPage.value - 1) * size
+  const info = {
+    size,
+    offset
+  }
+  store.getsystemUserlistData(info)
+}
+```
+
+pageSize的初始值为10
+
+currentPage初始值为1
+
+这两个值是绑定的当我们需要切换页码和一页的数量就会改变这两值
+
+所以这两个值可以当做我们的请求数据的依据
+
+分析:
+
+第一次请求 --pageSize=10 currentPage=1
+
+也就是第一次请求为请求数据量10条 请求偏移量为0  一共拿10条数据
+
+当我们点击下一页的时候size为10--- currentPage为2 offset也就是偏移10条数据请求10条数据也就是后面的数据
+
+当我们点击一页展示多少数据的时候就是 改变size 当size为20时候 offset还是10 但是请求数据量变大了也就是一次请求20条数据 展示20条数据
+
+### 对于请求的管理
+
+由于我们的角色列表和部门列表在其他的页面中很有可能也会被用到所以这里我们把这两个请求单独封装到service中的system中的main中进行单独的请求同时store中也是创建一个单独的文件单独的保存数据
+
+这两个数据的请求位置最好在登录成功之后就去拿到数据提前做好准备
