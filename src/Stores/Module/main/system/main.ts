@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { getdepartmentlist, getrolelist } from '@/service/main/System/main'
-
 interface ImainSysTemState {
   entireRoles: any[]
   entireDepartments: any[]
@@ -16,8 +15,8 @@ export const systemStoreMain = defineStore('systemStore', {
     async fetchAlldepartmentDataandRoleData() {
       const departmentlist = await getdepartmentlist()
       const rolelist = await getrolelist()
-      this.entireRoles = rolelist.data
-      this.entireDepartments = departmentlist.data
+      this.entireRoles = rolelist.data.list
+      this.entireDepartments = departmentlist.data.list
     }
   }
 })

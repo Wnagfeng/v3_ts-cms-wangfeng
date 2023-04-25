@@ -425,3 +425,135 @@ currentPage初始值为1
 由于我们的角色列表和部门列表在其他的页面中很有可能也会被用到所以这里我们把这两个请求单独封装到service中的system中的main中进行单独的请求同时store中也是创建一个单独的文件单独的保存数据
 
 这两个数据的请求位置最好在登录成功之后就去拿到数据提前做好准备
+
+### 修改用户的info的逻辑BUg
+
+今天在修改用户信息的时候出现了问题
+
+简单复盘一下
+
+修改用户信息需要发送网络请求 根据用户的id和携带的fromdata去修改数据
+
+当我们点击编辑按钮的时候通过作用域插槽获取到点击的用户的数据
+
+```js
+@click=EditUserData(scope.row)
+
+function EditUserData(EditData: any) {
+  // 当点击这个事件的时候我们需要派发一个事件让外界知道我们点击了他
+  // 当点击这个事件以后我们把点击的数据传递出去用它来作为编辑的数据
+  emit('EditUser', EditData)
+} 
+把拿到的点击的数据派发出去
+```
+
+在user页面中监听EditUser的点击并且获取数据
+
+```ts
+// 当用户点击编辑的逻辑
+function handlEditUserData(EditData: any) {
+  // 不是创建传递一个false
+  userdialog.value.changecenterDialogVisible(false, EditData)
+}
+```
+
+dialog页面
+
+````js
+function changecenterDialogVisible(iscreate: boolean, EditData?: any) {
+  // 当点击编辑以后我们把点击的数据对象拿过来 但是他不是必选的
+  centerDialogVisible.value = true
+  isCreate.value = iscreate
+  // 如果是编辑数据我们就把该数据填充到formData中方便我们进行可视化编辑
+  // 这个替换的操作只有在编辑的时候才能替换新建的操作必须是用户自己输入自己创建
+  if (isCreate.value == false) {
+    for (const key in formData) {
+      // 根据formdata中的key去取到EditData中的value去替换formdata中的数据这样就能展示了
+      formData[key] = EditData[key]
+    }
+    changeuseroinfoData.value = EditData
+  } else {
+    // 当用户不是编辑操作的时候我们就把数据设置为空
+    for (const key in formData) {
+      formData[key] = ''
+    }
+  }
+}
+````
+
+我们在这里对数据进行展示方便用户进行动态改变
+
+但是我们需要注意的时候我们修改的用户的信息的id是在EditData中的id所以我们需要把它保存一下
+
+```js
+// 创建一个用于保存修改信息的对象
+const changeuseroinfoData = ref()
+```
+
+在发请求的时候第一个参数的id是从EditData中的id拿到的也就是从changeuseroinfoData.value.id 我
+
+他妈直接来个formData.roleId老是修改不成功 妈的原来如此
+
+## 上难度
+
+### 对组件进行高度封装
+
+需要实现的效果，我们所有的页面配置基本都是一样的增删改查 ，在我们对组件进行抽取以后我们只需要通过一个配置文件生成页面即可
+
+首先我们如果想实现动态配置页面我们就需要实现动态的请求数据
+
+#### 一对网络请求的动态封装
+
+观察后端给我们的网络请求不难发现
+
+获取用户列表/user/list
+
+获取部门列表/department/list
+
+所以我们只需要对网络请求的前一个字段进行动态获取即可实现动态请求网络数据
+
+```js
+/** 针对页面的数据: 增删改查 */
+export function getpagelist(pagename: string, queryInfo: any) {
+  return wfrequest.post({
+    url: `/${pagename}/list`,
+    data: queryInfo
+  })
+}
+export function deletepagelist(pagename: string, id: any) {
+  return wfrequest.delete({
+    url: `/${pagename}/${id}`
+  })
+}
+export function createpagelist(pagename: string, queryInfo: any) {
+  return wfrequest.post({
+    url: `/${pagename}`,
+    data: queryInfo
+  })
+}
+export function editpagelist(pagename: string, id: any, editindo: any) {
+  return wfrequest.patch({
+    url: `/${pagename}/${id}`,
+    data: editindo
+  })
+}
+```
+
+在页面中就是改改标题换一下网络请求就行
+
+### vue3+ts中的props定义方式
+
+```ts
+//第一步定一个类型
+interface IProps {
+  searchConfig: {
+    pageName: string
+    labelWidth?: string
+    formItems: any[]
+  }
+}
+//第二步定义一个props
+const props = defineProps<IProps>()
+//第三步食用
+```
+

@@ -5,7 +5,7 @@
       <el-button type="primary" @click="handleuserClick">新建用户</el-button>
     </div>
     <div class="serarcount">
-      <el-table :data="list" border style="width: 100%" max-height="600px">
+      <el-table :data="pagelist" border style="width: 100%" max-height="600px">
         <el-table-column align="center" type="selection" width="50px" />
         <el-table-column
           align="center"
@@ -16,34 +16,23 @@
 
         <el-table-column
           align="center"
-          label="用户名"
+          label="部门名称"
           prop="name"
           width="150px"
         />
         <el-table-column
           align="center"
-          label="真实姓名"
-          prop="realname"
+          label="部门领导"
+          prop="leader"
           width="150px"
         />
         <el-table-column
           align="center"
-          label="手机号码"
-          prop="cellphone"
+          label="上级部门"
+          prop="parentId"
           width="150px"
         />
-        <el-table-column
-          align="center"
-          label="状态"
-          prop="enable"
-          width="100px"
-        >
-          <template #default="scope">
-            <el-button :type="scope.row.enable ? 'success' : 'danger'" plain>
-              {{ scope.row.enable ? '启用' : '禁用' }}
-            </el-button>
-          </template>
-        </el-table-column>
+
         <el-table-column
           align="center"
           label="创建时间"
@@ -94,7 +83,7 @@
           v-model:page-size="pageSize"
           :page-sizes="[10, 20, 30]"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="totalCount"
+          :total="pagetotalCount"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
@@ -114,7 +103,7 @@ const store = systemstore()
 
 // 发起网络请求获取数据
 fetchUserlistData()
-const { list, totalCount } = storeToRefs(store)
+const { pagelist, pagetotalCount } = storeToRefs(store)
 
 function handleSizeChange() {
   // 改变页码的时候调用
@@ -141,21 +130,21 @@ function fetchUserlistData(fromdata: any = {}) {
     ...fromdata
   }
   // 定义一个请求的状态 用户发聩给用户
-  const res = store.GetuserlistdataAction(info)
+  const res = store.GetuserpagedataAction('department',info)
   return res
 }
 
 // 删除用户的逻辑
 function deleteClick(id: any) {
-  store.DeleteuserlistdataAction(id).then((res) => {
-    
+  store.DeletepagelistdataAction('department',id).then((res) => {
+    console.log(id);
+
     fetchUserlistData()
   })
 }
 
 function handleuserClick() {
   // 当点击这个事件的时候我们需要派发一个事件让外界知道我们点击了他
-
   emit('createUser')
 }
 // 修改用户信息的函数

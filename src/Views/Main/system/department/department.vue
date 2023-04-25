@@ -1,12 +1,48 @@
 <template>
   <div class="department">
-    <h2>department</h2>
+    <div class="srarch">
+      <pagesearch @search-c-lick="handlpagesearchclick"></pagesearch>
+    </div>
+    <div class="count">
+      <pagecount
+        @create-user="handlcreatepage"
+        @edit-user="handlEdit"
+      ></pagecount>
+    </div>
+    <pageDialog ref="pagedialog"></pageDialog>
   </div>
 </template>
 
-<script setup lang="ts" name="department"></script>
+<script setup lang="ts" name="department">
+import pagesearch from './c-pns/page-search.vue'
+import pagecount from './c-pns/page-count.vue'
+import pageDialog from './c-pns/page-dialog.vue'
+import { systemstore } from '@/Stores/Module/main/system'
 
-<style scoped>
+import { ref } from 'vue'
+const pagedialog = ref<InstanceType<typeof pageDialog>>()
+const store = systemstore()
+function handlpagesearchclick(querydata: any) {
+  const res: any = store.GetuserpagedataAction('department', querydata)
+}
+function handlcreatepage() {
+  pagedialog.value?.changecenterDialogVisible(true)
+}
+function handlEdit(EditData:any){
+  pagedialog.value?.changecenterDialogVisible(false,EditData)
+}
+</script>
+
+<style scoped lang="less">
 .department {
+  .srarch {
+    background-color: #fff;
+    border-radius: 20px;
+  }
+  .count {
+    background-color: #fff;
+    border-radius: 20px;
+    margin-top: 20px;
+  }
 }
 </style>

@@ -1,43 +1,21 @@
 <template>
   <el-dialog
     v-model="centerDialogVisible"
-    :title="isCreate ? '新建用户' : '编辑用户'"
+    :title="isCreate ? '新建部门' : '编辑部门'"
     width="30%"
     center
   >
     <div class="form">
       <el-form :model="formData" label-width="80px" size="large">
-        <el-form-item label="用户名" prop="name">
+        <el-form-item label="部门名称" prop="name">
           <el-input v-model="formData.name" placeholder="请输入用户名" />
         </el-form-item>
-        <el-form-item label="真实姓名" prop="realname">
-          <el-input v-model="formData.realname" placeholder="请输入真实姓名" />
+        <el-form-item label="部门领导" prop="leader">
+          <el-input v-model="formData.leader" placeholder="请输入真实姓名" />
         </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input
-            v-model="formData.password"
-            placeholder="请输入密码"
-            show-password
-          />
-        </el-form-item>
-        <el-form-item label="手机号码" prop="cellphone">
-          <el-input v-model="formData.cellphone" placeholder="请输入手机号码" />
-        </el-form-item>
-        <el-form-item label="选择角色" prop="roleId">
+        <el-form-item label="上级部门" prop="parentId">
           <el-select
-            v-model="formData.roleId"
-            placeholder="请选择角色"
-            style="width: 100%"
-          >
-            <!-- 从store中拿到数据放到这里 -->
-            <template v-for="item in entireRoles">
-              <el-option :label="item.name" :value="item.id" />
-            </template>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="选择部门" prop="departmentId">
-          <el-select
-            v-model="formData.departmentId"
+            v-model="formData.parentId"
             placeholder="请选择部门"
             style="width: 100%"
           >
@@ -65,14 +43,11 @@ import { systemstore } from '@/Stores/Module/main/system/index'
 import { storeToRefs } from 'pinia'
 const sysstore = systemstore()
 const store = systemStoreMain()
-const { entireDepartments, entireRoles } = storeToRefs(store)
+const { entireDepartments } = storeToRefs(store)
 const formData = reactive<any>({
   name: '',
-  realname: '',
-  password: '',
-  cellphone: '',
-  roleId: '',
-  departmentId: ''
+  leader: '',
+  parentId: ''
 })
 // 创建一个用于保存修改信息的对象
 const changeuseroinfoData = ref()
@@ -102,46 +77,39 @@ function changecenterDialogVisible(iscreate: boolean, EditData?: any) {
 }
 // 获取数据的字段
 const searinfo = {
-  offset: 0,
-  size: 10
+  offset: 0
 }
 // 新建用户的函数
 function entercenterDialogVisible() {
   // 如果是修改数据在用户点击确定以后需要发送修改信息的请求修改数据
   if (isCreate.value) {
     centerDialogVisible.value = false
-    sysstore.CreateuserlistdataAction(formData).then((res: any) => {
-      if (res.code == 400) {
-        ElMessage.error('创建用户失败,请检查创建信息是否完善')
-      } else {
+    sysstore
+      .CreatepagelistdataAction('department', formData)
+      .then((res: any) => {
         // 发送新的请求获取新的数据
-        sysstore.GetuserlistdataAction(searinfo)
-        ElMessage({
-          message: '创建用户成功',
-          type: 'success'
-        })
-      }
-    })
+        sysstore.GetuserpagedataAction('department', searinfo)
+      })
   } else {
-    changeuerinfo(changeuseroinfoData.value.id, formData)
+    sysstore
+      .ChangepagelistDataAction(
+        'department',
+        changeuseroinfoData.value.id,
+        formData
+      )
+      .then((res) => {
+        if (res.code == 0) {
+          ElMessage({
+            message: '更新部门成功',
+            type: 'success'
+          })
+          sysstore.GetuserpagedataAction('department', searinfo)
+        }
+      })
+    centerDialogVisible.value = false
   }
 }
-// 编辑用户的函数
-function changeuerinfo(id: any, info: any) {
-  sysstore.ChangeuserlistDataAction(id, info).then((res: any) => {
-    centerDialogVisible.value = false
-    if (res.code == -1003) {
-      ElMessage.error('修改用户信息失败,您的权限不够')
-    } else {
-      // 发送新的请求获取新的数据
-      sysstore.GetuserlistdataAction(searinfo)
-      ElMessage({
-        message: '修改用户信息成功',
-        type: 'success'
-      })
-    }
-  })
-}
+
 defineExpose({ changecenterDialogVisible, entercenterDialogVisible })
 </script>
 <style scoped lang="less"></style>
