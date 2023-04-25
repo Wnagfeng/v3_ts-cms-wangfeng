@@ -43,6 +43,9 @@ declare module '@vue/runtime-core' {
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTabPane: typeof import('element-plus/es')['ElTabPane']
     ElTabs: typeof import('element-plus/es')['ElTabs']
+    PageCount: typeof import('./src/components/mainPage/page-count.vue')['default']
+    PageDialog: typeof import('./src/components/mainPage/page-dialog.vue')['default']
+    PageSearch: typeof import('./src/components/mainPage/page-search.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

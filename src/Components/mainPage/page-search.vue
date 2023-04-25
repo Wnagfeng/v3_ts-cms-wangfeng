@@ -81,12 +81,17 @@ const info = {
 }
 function handlResetClick() {
   form.value?.resetFields()
-  store.GetuserpagedataAction('department', info)
+  store.GetuserpagedataAction(props.searchConfig.pageName, info)
 }
 function handlSearchCLick() {
   // 当点击搜索按钮以后把我们的搜索字段携带出去
   emit('SearchCLick', formInfo)
 }
+// 发去搜索请求的函数
+function fetchsearchdata(formInfo: any) {
+  store.GetuserpagedataAction(props.searchConfig.pageName, formInfo)
+}
+defineExpose({ fetchsearchdata })
 </script>
 <style scoped lang="less">
 .UserSearchWrapper {

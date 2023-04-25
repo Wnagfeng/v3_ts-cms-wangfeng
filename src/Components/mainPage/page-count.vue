@@ -1,81 +1,74 @@
 <template>
   <div class="userCountWrapper">
     <div class="top">
-      <h1 class="title">用户列表</h1>
-      <el-button type="primary" @click="handleuserClick">新建用户</el-button>
+      <h1 class="title">
+        {{ props.departmentCounConfig.title ?? '数据列表' }}
+      </h1>
+      <el-button type="primary" @click="handleuserClick">{{
+        props.departmentCounConfig.btnTex ?? '创建数据'
+      }}</el-button>
     </div>
     <div class="serarcount">
       <el-table :data="pagelist" border style="width: 100%" max-height="600px">
-        <el-table-column align="center" type="selection" width="50px" />
-        <el-table-column
-          align="center"
-          type="index"
-          label="序号"
-          width="60px"
-        />
-
-        <el-table-column
-          align="center"
-          label="部门名称"
-          prop="name"
-          width="150px"
-        />
-        <el-table-column
-          align="center"
-          label="部门领导"
-          prop="leader"
-          width="150px"
-        />
-        <el-table-column
-          align="center"
-          label="上级部门"
-          prop="parentId"
-          width="150px"
-        />
-
-        <el-table-column
-          align="center"
-          label="创建时间"
-          prop="createAt"
-          min-width="250px"
-        >
-          <template #default="scope">
-            {{ formatUtcString(scope.row.createAt) }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          align="center"
-          label="更新时间"
-          prop="updateAt"
-          min-width="250px"
-        >
-          <template #default="scope">
-            {{ formatUtcString(scope.row.createAt) }}
-          </template>
-        </el-table-column>
-
-        <el-table-column align="center" label="操作" width="165px">
-          <template #default="scope">
-            <el-button
-              size="small"
-              icon="Edit"
-              type="primary"
-              text
-              @click="EditUserData(scope.row)"
+        <template v-for="item in props.departmentCounConfig.propsList">
+          <template v-if="item.type == 'timer'">
+            <el-table-column
+              align="center"
+              :label="item.label"
+              :prop="item.prop"
+              min-width="250px"
             >
-              编辑
-            </el-button>
-            <el-button
-              size="small"
-              icon="Delete"
-              type="danger"
-              text
-              @click="deleteClick(scope.row.id)"
-            >
-              删除
-            </el-button>
+              <template #default="scope">
+                <!-- 从数据中拿到时间 -->
+                {{ formatUtcString(scope.row[item.prop]) }}
+              </template>
+            </el-table-column>
           </template>
-        </el-table-column>
+          <template v-else-if="item.type == 'handler'">
+            <el-table-column align="center" label="操作" width="165px">
+              <template #default="scope">
+                <el-button
+                  size="small"
+                  icon="Edit"
+                  type="primary"
+                  text
+                  @click="EditUserData(scope.row)"
+                >
+                  编辑
+                </el-button>
+                <el-button
+                  size="small"
+                  icon="Delete"
+                  type="danger"
+                  text
+                  @click="deleteClick(scope.row.id)"
+                >
+                  删除
+                </el-button>
+              </template>
+            </el-table-column>
+          </template>
+          <!-- 这里是定制化插槽--需求实现任意元素的展示 -->
+          <template v-else-if="item.type == 'custom'">
+            <!-- 实现插槽 -->
+            <el-table-column align="center" v-bind="item">
+              <!-- 在这里留下一个具名插槽让开发者传递进来 name由数据传递进来 -->
+              <!-- 这里是el-table-column给我们预留的插槽 -->
+              <template #default="scope">
+                <slot
+                  :name="item.slotName"
+                  v-bind="scope"
+                  :prop="item.prop"
+                  :slotdata="item"
+                ></slot>
+              </template>
+              <!-- 这里在组件的使用中传递够来 -->
+            </el-table-column>
+          </template>
+          <template v-else>
+            <el-table-column align="center" v-bind="item" />
+          </template>
+        </template>
       </el-table>
       <div class="footer">
         <el-pagination
@@ -95,7 +88,22 @@
 import { storeToRefs } from 'pinia'
 import { systemstore } from '@/Stores/Module/main/system/index'
 import { formatUtcString } from '@/Utils/Fomart-Data-Time'
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
+interface IProps {
+  departmentCounConfig: {
+    title: string
+    btnTex: string
+    pagename: string
+    propsList: any[]
+  }
+}
+const props = defineProps<IProps>()
+const inittialForm: any = {}
+for (const item of props.departmentCounConfig.propsList) {
+  inittialForm[item.prop] = ''
+}
+const formInfo = reactive(inittialForm)
+
 const emit = defineEmits(['createUser', 'EditUser'])
 const currentPage = ref(1)
 const pageSize = ref(10)
@@ -130,17 +138,22 @@ function fetchUserlistData(fromdata: any = {}) {
     ...fromdata
   }
   // 定义一个请求的状态 用户发聩给用户
-  const res = store.GetuserpagedataAction('department',info)
+  const res = store.GetuserpagedataAction(
+    props.departmentCounConfig.pagename,
+    info
+  )
   return res
 }
 
 // 删除用户的逻辑
 function deleteClick(id: any) {
-  store.DeletepagelistdataAction('department',id).then((res) => {
-    console.log(id);
+  store
+    .DeletepagelistdataAction(props.departmentCounConfig.pagename, id)
+    .then((res) => {
+      console.log(id)
 
-    fetchUserlistData()
-  })
+      fetchUserlistData()
+    })
 }
 
 function handleuserClick() {

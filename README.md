@@ -557,3 +557,127 @@ const props = defineProps<IProps>()
 //第三步食用
 ```
 
+### 编写组件代码注意事项
+
+在一个页面中有三个组件我们需要借助主页面进行跳板 比如在子组件中点击搜索按钮在父组中监听搜索按钮的点击
+
+并且把携带的数据发出去在父组件中进行调用子组件实例调用发送请求的实例携带数据也带过去进行发请求
+
+所以在跳板当中你最好不要有请求的发送 最好所有的请求都在子组件中发送
+
+### 高度定制化:warning:
+
+我们在表格中展示数据的时候不一定总是展示一个文本有可能展示的img或者其他东西所以我们在配置文件中把type命名为type: 'custom',表示对于这条数据我们需要自定义展示
+
+```json
+{
+      type: 'custom',
+      label: '部门领导',
+      prop: 'leader',
+      width: '150px',
+      slotName: 'leader'
+    },
+    {
+      type: 'custom',
+      label: '上级部门',
+      prop: 'parentId',
+      width: '150px',
+      slotName: 'parent'
+    }
+```
+
+那么在组件中我们用一个判断只要type等于 'custom'我们就根据配置文件中的slotName留一个具名插槽
+
+```vue
+  <template v-else-if="item.type == 'custom'">
+    <!-- 实现插槽 -->
+    <el-table-column align="center" v-bind="item">
+      <!-- 在这里留下一个具名插槽让开发者传递进来 name由数据传递进来 -->
+      <!-- 这里是el-table-column给我们预留的插槽 -->
+      <template #default="scope">//这里是elementui给我们留的一个默认的插槽
+          //我们在默认插槽中在留下一个插槽在外面展示的时候你给我传进来展示
+        <slot
+          :name="item.slotName"
+          v-bind="scope"//这句话的意思是把elementui传递给我们的数据在传递到我们自己的预留插槽上
+          :prop="item.prop"//注意所有的只要是你在slot上绑定的属性他都会给你收集到一起传递出去
+          :slotdata="item"
+        ></slot>
+      </template>
+      <!-- 这里在组件的使用中传递够来 -->
+    </el-table-column>
+  </template>
+```
+
+页面中的插入位置展示
+
+```vue
+   <pagecount
+        :department-coun-config="departmentCounConfig"
+        @create-user="handlcreatepage"
+        @edit-user="handlEdit"
+      >
+        <!-- 这里的具名也要让他给我传递过来 -->
+        <template #leader="scope">//这里就是你留下的具名插槽插入位置
+          //注意scope会自动收集你在solt上绑定的所有的数据
+          <span class="leader">哈哈哈: {{ scope.row[scope.prop] }}</span>
+        </template>
+        <template #parent="scope">//这里就是你留下的具名插槽插入位置
+          <span class="parent">呵呵呵: {{ scope.row[scope.prop] }}</span>
+        </template>
+      </pagecount>
+```
+
+### 细节
+
+在做部门管理页面中的新建部门时候我们很容易就能把配置文件搞出来但是上级部门的数据怎么搞呢 我们在配置文件里不好搞，所以我们哟啊使用数据劫持进行二次填充数据
+
+````ts
+// 对配置文件数据进行劫持获取全部部门数据给他塞进去
+const departmentDialogdata = computed(() => {
+  // 拿到全部部门的数据--这里的数据是name和id我们需要的是lable和value
+  const alldepartementData = systemSstore.entireDepartments.map((item) => {
+    return { label: item.name, value: item.id }
+  })
+  //departmentDialogConfig是我们的配置数据 把他改一下再传递出去就行
+  departmentDialogConfig.propsList.forEach((item: any) => {
+    if (item.prop === 'parentId') {
+      item.opstion?.push(...alldepartementData)
+    }
+  })
+  return departmentDialogConfig
+})
+````
+
+
+
+### 细节二
+
+在做部门管理页面中的新建部门时候我们我们如果想对数据进行填充默认值我们不仅要在配置文件中写上默认值还要对默认值进行处理 因为他一上来是不展示的所以你如果想填充数据你必须在这里搞定
+
+```ts
+interface IProps {
+  departmentDialogConfig: {
+    createtitle: string
+    edittitle: string
+    pagename: string
+    propsList: any[]
+  }
+}
+const props = defineProps<IProps>()
+const inittialForm: any = {}
+for (const item of props.departmentDialogConfig.propsList) {
+  // 如果你想做默认值你需要在这里搞 因为他这个东西一上来不展示
+
+  /*
+  默认值的逻辑----------------------这里这里----------------------------
+  for (const key in formData) {
+    const item = props.modalConfig.formItems.find((item) => item.prop === key)
+    formData[key] = item ? item.initialValue : ''
+  }
+   */
+  inittialForm[item.prop] = ''
+}
+// 保存输入的地方
+const formInfo = reactive(inittialForm)
+```
+
