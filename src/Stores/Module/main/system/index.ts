@@ -7,7 +7,8 @@ import {
   getpagelist,
   deletepagelist,
   createpagelist,
-  editpagelist
+  editpagelist,
+  getRoleForid
 } from '@/service/main/System/index'
 interface Istae {
   list: IList[]
@@ -90,6 +91,11 @@ export const systemstore = defineStore('system', {
     },
     ChangepagelistDataAction(pagename: string, id: any, editindo: any) {
       const res = editpagelist(pagename, id, editindo)
+      return res
+    },
+    async GetRoleDatFormId(pageName: string, id: any) {
+      const res = await getRoleForid(pageName, id)
+      this.pagelist = res.data
       return res
     }
   }

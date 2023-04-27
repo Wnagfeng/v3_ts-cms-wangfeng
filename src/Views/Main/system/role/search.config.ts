@@ -64,6 +64,11 @@ export const dialog = {
       label: '权限介绍',
       prop: 'intro',
       placeholder: '请输入权限介绍'
+    },
+    // 留个插槽
+    {
+      type: 'custom',
+      slotName: 'menulist'
     }
   ]
 }

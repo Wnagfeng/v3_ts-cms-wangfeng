@@ -204,7 +204,7 @@ const roles:{
 
 第一步安装  npm install coderwhy -g
 
-理一下思路我们的view和router是一一对应的我们使用该工具只需要在main页面中生成view他就会自动在router文件夹下生成 对应的路由文件 比如生成一下结构
+理一下思路我们的view和router是一一对应的我们使用该工具只需要在main页面中生成view他就会自动在router文件夹下生成 对应的路由文件 比如生成以下结构
 
 coderwhy add3page_setup list -d src/views/main/story/list
 
@@ -681,3 +681,80 @@ for (const item of props.departmentDialogConfig.propsList) {
 const formInfo = reactive(inittialForm)
 ```
 
+### 细节三
+
+在做菜单管理界面的中间部分的时候发现我们需要展示子菜单子菜单需要有一个tree类型列表
+
+如果你想做这种效果不可缺少的属性是``row-key="id"	``
+
+需要展示的数据一般是在chliden中我们需要写上这个属性
+
+```elixir
+:tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+```
+
+children表示你的数据源在哪里 比如在list中就改成list 
+
+hasChildren是否有children列表 这些如果默认不添加都是默认添加上的
+
+在定义数据的时候如果确定这个数据的需要有children展示的就不要写type='normal'了因为他会覆盖element样式建议不要乱添加type 换个字段名去判断
+
+### 创建角色时候的细节
+
+当用户为创建的角色选择用户权限的时候我们传递的一串id过去 
+
+编辑角色的细节 
+
+当用户点击编辑用户的时候我们需要对数据进行回显 该角色有哪些权限就展示哪些权限
+
+我们需要定义一个函数用来获取数据中的所有id--一级就不要了因为他一旦设置上了就是全选了自己测试一下
+
+```ts
+// 获取id的逻辑
+function mapmenulisttoIds(menuList: any[]) {
+  const idS: number[] = []
+  function mapidtoids(menus: any[]) {
+    for (const item of menus) {
+      // 如果当前的这段数据中有children就在调用一次这个函数
+      if (item.children) {
+        mapidtoids(item.children)
+      } else {
+        // 如果不存在就给我添加
+        idS.push(item.id)
+      }
+    }
+  }
+  mapidtoids(menuList)
+  return idS
+}
+```
+
+设置的话我们必须在nexttick中设置
+
+```vue
+ nextTick(() => {
+    treeRef?.value?.setCheckedKeys(res)
+ })
+```
+
+为什么？ :wheel_of_dharma:
+
+nextTick--->当你在 Vue 中更改响应式状态时，最终的 DOM 更新并不是同步生效的，而是由 Vue 将它们缓存在一个队列中，直到下一个“tick”才一起执行。这样是为了确保每个组件无论发生多少状态改变，都仅执行一次更新。
+
+所以我们这设置选中后他是不会立即更新的 所以你暂时拿不到 所以我们需要在下一次dom更新完成之后拿到所有的数据
+
+原因因为我们在点击编辑按钮以后第一个操作是弹出编辑框 编辑框的展示或者不展示是由一个响应式对象决定的
+
+所以他会触发更新的机制 不会立即更新所以你设置上去没有效果
+
+nextTick 的回调是宏任务还是微任务呢?
+
+在v2中发生了很多次变化
+
+在v3中他是一个微任务!
+
+他的原理是 把你给nextTick的函数全部加到更新队列的promise.then中
+
+then是一个微任务 只要promise中的代码执行完毕就会执行then中的代码 
+
+vue把所有的更新都放到一个promise中更新函数放到这个promise中的then中

@@ -11,3 +11,8 @@ export function getrolelist() {
   })
 }
 
+export function getmenulist() {
+  return wfrequest.post({
+    url: '/menu/list'
+  })
+}

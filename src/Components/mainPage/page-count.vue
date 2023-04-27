@@ -9,7 +9,7 @@
       }}</el-button>
     </div>
     <div class="serarcount">
-      <el-table :data="pagelist" border style="width: 100%" max-height="600px">
+      <el-table :data="pagelist" border style="width: 100%" max-height="600px" row-key="id" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
         <template v-for="item in props.departmentCounConfig.propsList">
           <template v-if="item.type == 'timer'">
             <el-table-column
@@ -66,7 +66,12 @@
             </el-table-column>
           </template>
           <template v-else>
-            <el-table-column align="center" v-bind="item" />
+            <el-table-column
+              align="center"
+              v-bind="item"
+              row-key="id"
+
+            />
           </template>
         </template>
       </el-table>

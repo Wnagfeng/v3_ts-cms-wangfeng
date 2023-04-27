@@ -91,7 +91,10 @@ function handlSearchCLick() {
 function fetchsearchdata(formInfo: any) {
   store.GetuserpagedataAction(props.searchConfig.pageName, formInfo)
 }
-defineExpose({ fetchsearchdata })
+function fetchsearchRoledata(id: any) {
+  store.GetRoleDatFormId(props.searchConfig.pageName, id)
+}
+defineExpose({ fetchsearchdata ,fetchsearchRoledata})
 </script>
 <style scoped lang="less">
 .UserSearchWrapper {

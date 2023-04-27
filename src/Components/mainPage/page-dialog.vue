@@ -20,7 +20,7 @@
               />
             </el-form-item>
           </template>
-          <template v-else="item.type == 'select'">
+          <template v-else-if="item.type == 'select'">
             <el-form-item :label="item.label" :prop="item.prop">
               <el-select
                 v-model="formInfo[item.prop]"
@@ -32,6 +32,9 @@
                 </template>
               </el-select>
             </el-form-item>
+          </template>
+          <template v-else-if="item.type == 'custom'">
+            <slot :name="item.slotName"></slot>
           </template>
         </template>
       </el-form>
@@ -61,6 +64,7 @@ interface IProps {
     pagename: string
     propsList: any[]
   }
+  menuList?: any
 }
 const props = defineProps<IProps>()
 const inittialForm: any = {}
@@ -73,7 +77,11 @@ for (const item of props.departmentDialogConfig.propsList) {
     formData[key] = item ? item.initialValue : ''
   }
    */
-  inittialForm[item.prop] = ''
+  if (inittialForm[item.prop] == undefined) {
+    continue
+  } else {
+    inittialForm[item.prop] = ''
+  }
 }
 // 保存输入的地方
 const formInfo = reactive(inittialForm)
@@ -111,10 +119,19 @@ const searinfo = {
 // 新建用户的函数
 function entercenterDialogVisible() {
   // 如果是修改数据在用户点击确定以后需要发送修改信息的请求修改数据
+  let fetchformInfo = formInfo
+  if (props.menuList) {
+    fetchformInfo = { ...formInfo, ...props.menuList }
+  }
+  console.log(fetchformInfo)
+
   if (isCreate.value) {
     centerDialogVisible.value = false
     sysstore
-      .CreatepagelistdataAction(props.departmentDialogConfig.pagename, formInfo)
+      .CreatepagelistdataAction(
+        props.departmentDialogConfig.pagename,
+        fetchformInfo
+      )
       .then((res: any) => {
         // 发送新的请求获取新的数据
         sysstore.GetuserpagedataAction(
@@ -127,7 +144,7 @@ function entercenterDialogVisible() {
       .ChangepagelistDataAction(
         props.departmentDialogConfig.pagename,
         changeuseroinfoData.value.id,
-        formInfo
+        fetchformInfo
       )
       .then((res) => {
         if (res.code == 0) {
