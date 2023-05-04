@@ -50,7 +50,7 @@
   </el-dialog>
 </template>
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { systemStoreMain } from '@/Stores/Module/main/system/main'
 import { systemstore } from '@/Stores/Module/main/system/index'
 import { storeToRefs } from 'pinia'
@@ -65,8 +65,11 @@ interface IProps {
     propsList: any[]
   }
   menuList?: any
+  newcallback?: any
 }
+
 const props = defineProps<IProps>()
+
 const inittialForm: any = {}
 for (const item of props.departmentDialogConfig.propsList) {
   // 如果你想做默认值你需要在这里搞 因为他这个东西一上来不展示
@@ -99,8 +102,9 @@ function changecenterDialogVisible(iscreate: boolean, EditData?: any) {
   isCreate.value = iscreate
   // 如果是编辑数据我们就把该数据填充到formData中方便我们进行可视化编辑
   // 这个替换的操作只有在编辑的时候才能替换新建的操作必须是用户自己输入自己创建
-  if (isCreate.value == false) {
-    for (const key in formInfo) {
+  if (isCreate.value == false && EditData) {
+    // 在有数据的时候你在给我们编辑 妈的sb
+    for (const key in EditData) {
       // 根据formdata中的key去取到EditData中的value去替换formdata中的数据这样就能展示了
       formInfo[key] = EditData[key]
     }
@@ -109,6 +113,9 @@ function changecenterDialogVisible(iscreate: boolean, EditData?: any) {
     // 当用户不是编辑操作的时候我们就把数据设置为空
     for (const key in formInfo) {
       formInfo[key] = ''
+    }
+    if (props.newcallback) {
+      props.newcallback()
     }
   }
 }
@@ -123,7 +130,6 @@ function entercenterDialogVisible() {
   if (props.menuList) {
     fetchformInfo = { ...formInfo, ...props.menuList }
   }
-  console.log(fetchformInfo)
 
   if (isCreate.value) {
     centerDialogVisible.value = false

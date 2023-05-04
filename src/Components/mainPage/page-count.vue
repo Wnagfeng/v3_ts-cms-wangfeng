@@ -4,12 +4,19 @@
       <h1 class="title">
         {{ props.departmentCounConfig.title ?? '数据列表' }}
       </h1>
-      <el-button type="primary" @click="handleuserClick">{{
+      <el-button v-if="isCreate" type="primary" @click="handleuserClick">{{
         props.departmentCounConfig.btnTex ?? '创建数据'
       }}</el-button>
     </div>
-    <div class="serarcount">
-      <el-table :data="pagelist" border style="width: 100%" max-height="600px" row-key="id" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
+    <div class="serarcount" v-if="isQuery">
+      <el-table
+        :data="pagelist"
+        border
+        style="width: 100%"
+        max-height="600px"
+        row-key="id"
+        :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      >
         <template v-for="item in props.departmentCounConfig.propsList">
           <template v-if="item.type == 'timer'">
             <el-table-column
@@ -28,6 +35,7 @@
             <el-table-column align="center" label="操作" width="165px">
               <template #default="scope">
                 <el-button
+                v-if="isUpdate"
                   size="small"
                   icon="Edit"
                   type="primary"
@@ -37,6 +45,7 @@
                   编辑
                 </el-button>
                 <el-button
+                v-if="isDelete"
                   size="small"
                   icon="Delete"
                   type="danger"
@@ -65,12 +74,15 @@
               <!-- 这里在组件的使用中传递够来 -->
             </el-table-column>
           </template>
+          <template v-else-if="item.type == 'selection'">
+            <el-table-column align="center" v-bind="item" />
+          </template>
           <template v-else>
             <el-table-column
               align="center"
               v-bind="item"
               row-key="id"
-
+              :show-overflow-tooltip="true"
             />
           </template>
         </template>
@@ -93,7 +105,10 @@
 import { storeToRefs } from 'pinia'
 import { systemstore } from '@/Stores/Module/main/system/index'
 import { formatUtcString } from '@/Utils/Fomart-Data-Time'
+
+import { mapPermission } from './Hooks/mapPermission'
 import { ref, reactive } from 'vue'
+
 interface IProps {
   departmentCounConfig: {
     title: string
@@ -103,6 +118,16 @@ interface IProps {
   }
 }
 const props = defineProps<IProps>()
+
+// 获取该用户的所有的权限 根据该权限决定是否展示编辑删除按钮 新建用户的按钮 还有搜索的页面
+
+// 7.按钮是否显示
+const isCreate = mapPermission(props.departmentCounConfig.pagename, 'create')
+const isDelete = mapPermission(props.departmentCounConfig.pagename, 'delete')
+const isUpdate = mapPermission(props.departmentCounConfig.pagename, 'update')
+const isQuery = mapPermission(props.departmentCounConfig.pagename, 'query')
+console.log(isCreate);
+
 const inittialForm: any = {}
 for (const item of props.departmentCounConfig.propsList) {
   inittialForm[item.prop] = ''
@@ -169,6 +194,8 @@ function handleuserClick() {
 function EditUserData(EditData: any) {
   // 当点击这个事件的时候我们需要派发一个事件让外界知道我们点击了他
   // 当点击这个事件以后我们把点击的数据传递出去用它来作为编辑的数据
+  console.log('EditData', EditData)
+
   emit('EditUser', EditData)
 }
 defineExpose({ fetchUserlistData })

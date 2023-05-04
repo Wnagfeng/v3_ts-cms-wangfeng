@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { systemStoreMain } from './main'
 import {
   getuserlist,
   deleteUser,
@@ -69,10 +70,13 @@ export const systemstore = defineStore('system', {
     },
     CreateuserlistdataAction(userinfo: any) {
       const res = createUser(userinfo)
+      console.log('create')
+      this.GetuserlistdataAction({ offset: 0, size: 10 })
       return res
     },
     ChangeuserlistDataAction(id: any, info: any) {
       const res = changeuser(id, info)
+      this.GetuserlistdataAction({ offset: 0, size: 10 })
       return res
     },
     // 针对不同页面的请求
@@ -83,14 +87,22 @@ export const systemstore = defineStore('system', {
     },
     DeletepagelistdataAction(pagename: string, id: any) {
       const res = deletepagelist(pagename, id).then((res) => {})
+      this.GetuserpagedataAction(pagename, { offset: 0, size: 10 })
       return res
     },
     CreatepagelistdataAction(pagename: string, queryInfo: any) {
+      console.log('您创建了');
+
       const res = createpagelist(pagename, queryInfo)
+      const store = systemStoreMain()
+      store.fetchAlldepartmentDataandRoleData()
       return res
     },
     ChangepagelistDataAction(pagename: string, id: any, editindo: any) {
+      console.log('您编辑了');
       const res = editpagelist(pagename, id, editindo)
+      const store = systemStoreMain()
+      store.fetchAlldepartmentDataandRoleData()
       return res
     },
     async GetRoleDatFormId(pageName: string, id: any) {

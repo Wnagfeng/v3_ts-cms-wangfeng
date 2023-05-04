@@ -28,7 +28,7 @@
                   style="width: 100%"
                   v-model="formInfo[item.prop]"
                 >
-                  <template v-for="iten in item.opsttion">
+                  <template v-for="iten in item.options">
                     <el-option :label="iten.label" :value="iten.value" />
                   </template>
                 </el-select>
@@ -87,14 +87,18 @@ function handlSearchCLick() {
   // 当点击搜索按钮以后把我们的搜索字段携带出去
   emit('SearchCLick', formInfo)
 }
+
 // 发去搜索请求的函数
 function fetchsearchdata(formInfo: any) {
   store.GetuserpagedataAction(props.searchConfig.pageName, formInfo)
 }
+
+// 点击按钮以后根据角色的id去获取角色
+
 function fetchsearchRoledata(id: any) {
   store.GetRoleDatFormId(props.searchConfig.pageName, id)
 }
-defineExpose({ fetchsearchdata ,fetchsearchRoledata})
+defineExpose({ fetchsearchdata, fetchsearchRoledata })
 </script>
 <style scoped lang="less">
 .UserSearchWrapper {

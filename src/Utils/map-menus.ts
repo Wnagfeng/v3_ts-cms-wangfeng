@@ -19,7 +19,6 @@ function loadLocalRouters() {
 // 获取到该用户的第一个路由权限在第一次进入页面以后我们进行跳转到第一个页面
 export let fristRouterUrl: any = null
 export function mapMenusToRouters(usermenu: any) {
-
   const localRouters = loadLocalRouters()
   const rouers: RouteRecordRaw[] = []
 
@@ -29,9 +28,9 @@ export function mapMenusToRouters(usermenu: any) {
       if (route) {
         // 我们这里的重定向匹配只需要添加一次就行 只需要判断一下当前的一级路由是否已经添加过了如果添加过了 就不用在添加了
 
-    //  日你妈还不懂画个图去--简单的一批
+        //  日你妈还不懂画个图去--简单的一批
         if (!rouers.find((item) => item.path === menu.url)) {
-        rouers.push({ path: menu.url, redirect: route.path })
+          rouers.push({ path: menu.url, redirect: route.path })
         }
         rouers.push(route)
       }
@@ -41,8 +40,6 @@ export function mapMenusToRouters(usermenu: any) {
     }
   }
   // 把需要添加的路由返回出去
-
-
 
   return rouers
 }
@@ -75,4 +72,24 @@ export function mapPathToBreadcrumbName(path: any, usermenu: any) {
     }
   }
   return Breadcrumb
+}
+
+// 根据用户的权限列表获取用户的权限
+export function mapUsermenutoPermissions(usermenu: any[]) {
+  // 创建一个用于保存用户权限的数组
+  let Permissions: any = []
+  // 写一个闭包来解析该用户的权限
+  function mapPermissions(menus: any[]) {
+    for (const item of menus) {
+      if (item.children) {
+        mapPermissions(item.children)
+      } else {
+        if (item.permission) {
+          Permissions.push(item.permission)
+        }
+      }
+    }
+  }
+  mapPermissions(usermenu)
+  return Permissions
 }

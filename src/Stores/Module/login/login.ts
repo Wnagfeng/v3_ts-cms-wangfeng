@@ -7,7 +7,7 @@ import {
 import type { IAccount } from '@/Types/Login'
 import { localCache } from '@/Utils/Cache.js'
 import { LOGIN_TOKEN } from '@/global/constants'
-import { mapMenusToRouters } from '@/Utils/map-menus'
+import { mapMenusToRouters, mapUsermenutoPermissions } from '@/Utils/map-menus'
 import { systemStoreMain } from '../main/system/main'
 
 import router from '@/router'
@@ -17,6 +17,7 @@ interface Istate {
   token: string
   userinfo: any
   usermenu: any
+  Permission: any
 }
 // 确定state的类型实际上就是确定箭头函数的返回值类型直接:xx类型就行
 const useLoginStore = defineStore('login', {
@@ -24,7 +25,8 @@ const useLoginStore = defineStore('login', {
     return {
       token: localStorage.getItem(LOGIN_TOKEN) ?? '',
       userinfo: localCache.getCache('userinfo') ?? {},
-      usermenu: localCache.getCache('menu') ?? []
+      usermenu: localCache.getCache('menu') ?? [],
+      Permission: []
     }
   },
   actions: {
@@ -41,10 +43,14 @@ const useLoginStore = defineStore('login', {
       const userinfoRes = userinfo.data
       this.userinfo = userinfoRes
 
-      // 4根据角色请求用户权限菜单树
+      // 4根据登录用户token请求用户权限菜单树
       const menu = await getUserMenuTree(this.userinfo.role.id)
       const menuRes = menu.data
       this.usermenu = menuRes
+
+      // 5.根据用户的权限列表去获取该用户的权限
+      const permission = mapUsermenutoPermissions(this.usermenu)
+      this.Permission = [...permission]
 
       localCache.setCache('menu', menu.data)
       localCache.setCache('userinfo', userinfo)
@@ -62,15 +68,19 @@ const useLoginStore = defineStore('login', {
       router.push('/main')
     },
     // 只要用户给我刷新我就给他重新加载一下所有的路由
+    // 在main页面中使用一下该函数就行
     loadRouters() {
       const rouers = mapMenusToRouters(this.usermenu)
-
       // 用户刷新在获取一次角色列表
       const systemMainstore = systemStoreMain()
       systemMainstore.fetchAlldepartmentDataandRoleData()
       rouers.forEach((item) => {
         router.addRoute('main', item)
       })
+
+      // 只要用户刷新了我们就给他重新map一次该用户的权限
+      const permission = mapUsermenutoPermissions(this.usermenu)
+      this.Permission = [...permission]
     }
   }
 })

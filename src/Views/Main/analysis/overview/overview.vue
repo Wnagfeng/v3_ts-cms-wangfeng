@@ -1,6 +1,6 @@
 <template>
   <div class="overview">
-    <h2>overview这里是第一个页面</h2>
+    <h2>我最牛逼</h2>
   </div>
 </template>
 
@@ -9,8 +9,8 @@
 <style scoped lang="less">
 .overview {
   h2 {
-    color: red;
-    font-size: 100px;
+    color: rgb(0, 0, 0);
+    font-size: 50px;
   }
 }
 </style>

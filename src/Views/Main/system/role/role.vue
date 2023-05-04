@@ -18,8 +18,10 @@
       :department-dialog-config="dialog"
       ref="pagedialog"
       :menu-list="checkmenuid"
+      :newcallback="callback"
     >
       <template #menulist="scope">
+        <!-- 显示勾选的id -->
         <el-tree
           ref="treeRef"
           :data="entireAllMenulist"
@@ -45,16 +47,20 @@ import pageCount from '@/Components/mainPage/page-count.vue'
 import pageDialog from '@/Components/mainPage/page-dialog.vue'
 import { systemStoreMain } from '@/Stores/Module/main/system/main'
 import { storeToRefs } from 'pinia'
+
 const treeRef = ref()
 const pagesearch = ref<InstanceType<typeof pageSearch>>()
 // 发送网络请求获取数据用在全部部门的展示
 const mainStore = systemStoreMain()
 mainStore.fetchgetAllmenulist()
 const { entireAllMenulist } = storeToRefs(mainStore)
+console.log('entireAllMenulist', entireAllMenulist)
 
 // 获取用户选中的权限的id 并且传递给表单发送网络请求获取数据
 const checkmenuid: any = ref({})
 function handlCheckClick(data1: any, data2: any) {
+  console.log('111', data2)
+
   let menuList = [...data2.checkedKeys, ...data2.halfCheckedKeys]
   checkmenuid.value = { menuList }
 }
@@ -73,6 +79,8 @@ function handlpagesearchclick(querydata: any) {
   pagesearch.value?.fetchsearchRoledata(1)
 }
 function handlEdit(EditData: any) {
+  console.log('EditData', EditData)
+
   pagedialog.value?.changecenterDialogVisible(false, EditData)
   // 当我们点击编辑按钮后会拿到当前这一条数据的全部
   // 我们需要定义一个函数用来获取所有的id然后传递个组件进行展示
@@ -81,6 +89,13 @@ function handlEdit(EditData: any) {
     treeRef?.value?.setCheckedKeys(res)
   })
 }
+function callback() {
+  console.log('调用了')
+  nextTick(() => {
+    treeRef?.value?.setCheckedKeys([])
+  })
+}
+
 // 去除id的逻辑
 function mapmenulisttoIds(menuList: any[]) {
   const idS: number[] = []

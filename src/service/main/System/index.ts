@@ -53,8 +53,10 @@ export function editpagelist(pagename: string, id: any, editindo: any) {
   })
 }
 // role的查询逻辑
+// 根据id去查询角色信息
 export function getRoleForid(pagename: string, id: any) {
   return wfrequest.get({
     url: `/${pagename}/${id}`
   })
 }
+
