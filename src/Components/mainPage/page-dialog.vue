@@ -80,15 +80,10 @@ for (const item of props.departmentDialogConfig.propsList) {
     formData[key] = item ? item.initialValue : ''
   }
    */
-  if (inittialForm[item.prop] == undefined) {
-    continue
-  } else {
     inittialForm[item.prop] = ''
-  }
 }
 // 保存输入的地方
 const formInfo = reactive(inittialForm)
-
 // 创建一个用于保存修改信息的对象
 const changeuseroinfoData = ref()
 // 是否展示新建或者编辑页面
@@ -104,7 +99,7 @@ function changecenterDialogVisible(iscreate: boolean, EditData?: any) {
   // 这个替换的操作只有在编辑的时候才能替换新建的操作必须是用户自己输入自己创建
   if (isCreate.value == false && EditData) {
     // 在有数据的时候你在给我们编辑 妈的sb
-    for (const key in EditData) {
+    for (const key in formInfo) {
       // 根据formdata中的key去取到EditData中的value去替换formdata中的数据这样就能展示了
       formInfo[key] = EditData[key]
     }

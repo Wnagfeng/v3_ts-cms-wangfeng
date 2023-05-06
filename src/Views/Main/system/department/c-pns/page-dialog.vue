@@ -49,6 +49,7 @@ const formData = reactive<any>({
   leader: '',
   parentId: ''
 })
+
 // 创建一个用于保存修改信息的对象
 const changeuseroinfoData = ref()
 // 是否展示新建或者编辑页面
@@ -57,12 +58,14 @@ const centerDialogVisible = ref(false)
 const isCreate = ref(false)
 // 保存我们需要修改的数据发生
 function changecenterDialogVisible(iscreate: boolean, EditData?: any) {
+  console.log('当前是编辑吗',iscreate);
   // 当点击编辑以后我们把点击的数据对象拿过来 但是他不是必选的
   centerDialogVisible.value = true
   isCreate.value = iscreate
   // 如果是编辑数据我们就把该数据填充到formData中方便我们进行可视化编辑
   // 这个替换的操作只有在编辑的时候才能替换新建的操作必须是用户自己输入自己创建
-  if (isCreate.value == false) {
+  if (isCreate.value == false && EditData) {
+    // 在有数据的时候你在给我们编辑 妈的sb
     for (const key in formData) {
       // 根据formdata中的key去取到EditData中的value去替换formdata中的数据这样就能展示了
       formData[key] = EditData[key]
@@ -75,6 +78,8 @@ function changecenterDialogVisible(iscreate: boolean, EditData?: any) {
     }
   }
 }
+
+
 // 获取数据的字段
 const searinfo = {
   offset: 0
@@ -109,7 +114,10 @@ function entercenterDialogVisible() {
     centerDialogVisible.value = false
   }
 }
+function test(){
+  alert("该函数能调用")
+}
 
-defineExpose({ changecenterDialogVisible, entercenterDialogVisible })
+defineExpose({ changecenterDialogVisible, entercenterDialogVisible ,test})
 </script>
 <style scoped lang="less"></style>

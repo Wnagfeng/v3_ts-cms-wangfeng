@@ -24,7 +24,8 @@
     <pageDialog
       :department-dialog-config="departmentDialogdata"
       ref="pagedialog"
-    ></pageDialog>
+    >
+    </pageDialog>
   </div>
 </template>
 

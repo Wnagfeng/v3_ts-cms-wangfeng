@@ -99,7 +99,7 @@ export const systemstore = defineStore('system', {
       return res
     },
     ChangepagelistDataAction(pagename: string, id: any, editindo: any) {
-      console.log('您编辑了');
+      console.log('您编辑了',editindo);
       const res = editpagelist(pagename, id, editindo)
       const store = systemStoreMain()
       store.fetchAlldepartmentDataandRoleData()

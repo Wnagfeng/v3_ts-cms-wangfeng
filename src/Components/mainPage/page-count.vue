@@ -35,7 +35,7 @@
             <el-table-column align="center" label="操作" width="165px">
               <template #default="scope">
                 <el-button
-                v-if="isUpdate"
+                  v-if="isUpdate"
                   size="small"
                   icon="Edit"
                   type="primary"
@@ -45,7 +45,7 @@
                   编辑
                 </el-button>
                 <el-button
-                v-if="isDelete"
+                  v-if="isDelete"
                   size="small"
                   icon="Delete"
                   type="danger"
@@ -126,7 +126,7 @@ const isCreate = mapPermission(props.departmentCounConfig.pagename, 'create')
 const isDelete = mapPermission(props.departmentCounConfig.pagename, 'delete')
 const isUpdate = mapPermission(props.departmentCounConfig.pagename, 'update')
 const isQuery = mapPermission(props.departmentCounConfig.pagename, 'query')
-console.log(isCreate);
+console.log(isCreate)
 
 const inittialForm: any = {}
 for (const item of props.departmentCounConfig.propsList) {
@@ -138,6 +138,19 @@ const emit = defineEmits(['createUser', 'EditUser'])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const store = systemstore()
+
+// 监听函数的执行在修改完数据以后我们把页码设置为1因为他会自动跳转到第一页
+store.$onAction(({ name, after }) => {
+  after(() => {
+    if (
+      name == 'ChangepagelistDataAction' ||
+      name == 'DeletepagelistdataAction' ||
+      name == 'CreatepagelistdataAction'
+    ) {
+      currentPage.value = 1
+    }
+  })
+})
 
 // 发起网络请求获取数据
 fetchUserlistData()

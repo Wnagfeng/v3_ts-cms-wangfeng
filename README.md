@@ -769,3 +769,24 @@ vue把所有的更新都放到一个promise中更新函数放到这个promise中
 
 对于该功能我们在前期登录用户的时候会请求一个数据该数据是表示该用户的路由权限就是根据这个数据去动态渲染我们的路由 动态添加路由的数据(usermenu)在这个数据中的第三级中会有一个permission 就是表示该用户是否拥有该二级权限中的某一个权限
 
+### 新技术
+
+`store.$onAction()` 
+
+该函数用于监听我们的store中的某个action的执行 当我们在执行某个action的时候我们可以对其进行一系列的操作
+
+```js
+// 监听函数的执行在修改完数据以后我们把页码设置为1因为他会自动跳转到第一页
+store.$onAction(({ name, after }) => {
+  after(() => {
+    if (
+      name == 'ChangepagelistDataAction' ||
+      name == 'DeletepagelistdataAction' ||
+      name == 'CreatepagelistdataAction'
+    ) {
+      currentPage.value = 1
+    }
+  })
+})
+```
+
