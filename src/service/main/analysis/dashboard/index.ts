@@ -5,3 +5,21 @@ export function GetgoodsData() {
     url: '/goods/amount/list'
   })
 }
+
+export function GetcategoryAllData() {
+  return wfrequest.get({
+    url: '/goods/category/count'
+  })
+}
+
+export function Getcategorysale() {
+  return wfrequest.get({
+    url: '/goods/category/sale'
+  })
+}
+
+export function Getcategoryfavor() {
+  return wfrequest.get({
+    url: '/goods/category/favor'
+  })
+}

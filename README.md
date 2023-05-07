@@ -790,3 +790,37 @@ store.$onAction(({ name, after }) => {
 })
 ```
 
+###  对于Echarts的封装
+
+Echarts主要是依靠与opstion的配置项 所以基本的大小或者初始化数据的逻辑都是一样的 这样吧所有的初始化都写到base中 不同的表格都是基于 base的封装 只需要传递进去一个opstion就行
+
+### 关于computed的使用细节
+
+复盘我在服务器拿到一堆数据 我需要对齐进行格式化但是有要要求他在改变的时候我能第一时间获取到最新的值，我们需要使用computed进行监听 我需要把数据解构成两个数组 进行返回 我在computed的上面使用let声明了两个数组 在computed内部进行对齐进行push 但是发现始终没有值 
+
+```js
+错误示例---无法获取数据
+  let Xdata: string[] = []
+  let Ydata: number[] = []
+const roseData = computed(() => {
+  saleData.value.map((item: any) => {
+    Xdata.push(item.name)
+    Ydata.push(item.goodsCount)
+  })
+})
+```
+
+```js
+正确示例--应该把数据写到computed内部
+const roseData = computed(() => {
+  let Xdata: string[] = []
+  let Ydata: number[] = []
+  saleData.value.map((item: any) => {
+    console.log(item.name)
+    Xdata.push(item.name)
+    Ydata.push(item.goodsCount)
+  })
+  return { Xdata, Ydata }
+})
+```
+
