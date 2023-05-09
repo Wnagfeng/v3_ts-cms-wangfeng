@@ -3,7 +3,8 @@ import {
   GetgoodsData,
   GetcategoryAllData,
   Getcategorysale,
-  Getcategoryfavor
+  Getcategoryfavor,
+  getGoodsAddressSale
 } from '@/service/main/analysis/dashboard'
 export const usedashboardStore = defineStore('dashboard', {
   state: () => {
@@ -11,7 +12,8 @@ export const usedashboardStore = defineStore('dashboard', {
       GoodsData: [],
       categoryData: [],
       saleData: [],
-      favorData: []
+      favorData: [],
+      AddressSale: []
     }
   },
   actions: {
@@ -34,6 +36,11 @@ export const usedashboardStore = defineStore('dashboard', {
     Getcategoryfavor() {
       Getcategoryfavor().then((res) => {
         this.favorData = res.data
+      })
+    },
+    getgoodsaddresssale() {
+      getGoodsAddressSale().then((res) => {
+        this.AddressSale = res.data
       })
     }
   }

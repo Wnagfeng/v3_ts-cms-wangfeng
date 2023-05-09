@@ -90,6 +90,9 @@ function handlSearchCLick() {
 
 // 发去搜索请求的函数
 function fetchsearchdata(formInfo: any) {
+  console.log('查询名称', props.searchConfig.pageName)
+  console.log('查询数据', formInfo)
+
   store.GetuserpagedataAction(props.searchConfig.pageName, formInfo)
 }
 

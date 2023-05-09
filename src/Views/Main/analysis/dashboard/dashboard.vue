@@ -16,10 +16,14 @@
           </template>
         </echartsCard>
       </el-col>
-      <el-col :span="8">
-        <echartsCard header="标题"> </echartsCard>
+      <el-col :span="10">
+        <echartsCard header="全国商品商品销量展示">
+          <template #echart>
+            <mapPage :Adddata="mapData"></mapPage>
+          </template>
+        </echartsCard>
       </el-col>
-      <el-col :span="8">
+      <el-col :span="6">
         <echartsCard header="分类商品数量(玫瑰图)">
           <template #echart>
             <!-- 图表的绘制地点 -->
@@ -59,15 +63,18 @@ import PiePage from './c-cpns/Echarts-card/c-cpns/Pie-page.vue'
 import nightingalePage from './c-cpns/Echarts-card/c-cpns/nightingale-page.vue'
 import basicpage from './c-cpns/Echarts-card/c-cpns/basicpage.vue'
 import barPage from './c-cpns/Echarts-card/c-cpns/bar-page.vue'
+import mapPage from './c-cpns/Echarts-card/c-cpns/map-page.vue'
 import { usedashboardStore } from '@/Stores/Module/main/analysis/dashboard/index'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 const store = usedashboardStore()
-const { GoodsData, categoryData, saleData, favorData } = storeToRefs(store)
+const { GoodsData, categoryData, saleData, favorData, AddressSale } =
+  storeToRefs(store)
 store.getgoodsdata() //发送请求获取顶部展示的数据
 store.getcategorydata() //发送请求获取pie图表数据
 store.getcategorysale() //发送请求获取折线图需要的数据
 store.Getcategoryfavor() //发送请求获取柱形图需要的数据
+store.getgoodsaddresssale() //发送请求获取地图需要的数据
 
 // 对pie需要的数据进行格式化传递过去
 const piedata = computed(() => {
@@ -94,6 +101,15 @@ const barData = computed(() => {
     Ydata.push(item.goodsFavor)
   })
   return { Xdata, Ydata }
+})
+
+const mapData = computed(() => {
+  return AddressSale.value.map((item: any) => {
+    return {
+      name: item.address,
+      value: item.count
+    }
+  })
 })
 </script>
 

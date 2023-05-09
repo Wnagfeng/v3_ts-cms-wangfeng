@@ -23,3 +23,8 @@ export function Getcategoryfavor() {
     url: '/goods/category/favor'
   })
 }
+export function getGoodsAddressSale() {
+  return wfrequest.get({
+    url: '/goods/address/sale'
+  })
+}

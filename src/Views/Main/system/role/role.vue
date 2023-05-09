@@ -9,6 +9,7 @@
     </div>
     <div class="count">
       <pageCount
+        ref="pageCountref"
         :department-coun-config="countConfig"
         @create-user="handlcreatepage"
         @edit-user="handlEdit"
@@ -49,6 +50,7 @@ import { systemStoreMain } from '@/Stores/Module/main/system/main'
 import { storeToRefs } from 'pinia'
 
 const treeRef = ref()
+const pageCountref = ref()
 const pagesearch = ref<InstanceType<typeof pageSearch>>()
 // 发送网络请求获取数据用在全部部门的展示
 const mainStore = systemStoreMain()
@@ -75,8 +77,7 @@ function handlcreatepage() {
   pagedialog.value?.changecenterDialogVisible(true)
 }
 function handlpagesearchclick(querydata: any) {
-  console.log(querydata)
-  pagesearch.value?.fetchsearchRoledata(1)
+  pageCountref.value.fetchUserlistData(querydata)
 }
 function handlEdit(EditData: any) {
   console.log('EditData', EditData)

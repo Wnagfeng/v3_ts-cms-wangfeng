@@ -82,6 +82,7 @@ export const systemstore = defineStore('system', {
     // 针对不同页面的请求
     async GetuserpagedataAction(pagename: string, queryInfo: any) {
       const res = await getpagelist(pagename, queryInfo)
+      console.log(res)
       this.pagelist = res.data.list
       this.pagetotalCount = res.data.totalCount
     },
@@ -91,7 +92,7 @@ export const systemstore = defineStore('system', {
       return res
     },
     CreatepagelistdataAction(pagename: string, queryInfo: any) {
-      console.log('您创建了');
+      console.log('您创建了')
 
       const res = createpagelist(pagename, queryInfo)
       const store = systemStoreMain()
@@ -99,7 +100,7 @@ export const systemstore = defineStore('system', {
       return res
     },
     ChangepagelistDataAction(pagename: string, id: any, editindo: any) {
-      console.log('您编辑了',editindo);
+      console.log('您编辑了', editindo)
       const res = editpagelist(pagename, id, editindo)
       const store = systemStoreMain()
       store.fetchAlldepartmentDataandRoleData()
